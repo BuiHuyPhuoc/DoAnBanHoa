@@ -50,8 +50,70 @@ public class MainActivity extends AppCompatActivity {
         //Thêm tài khoản admin và khách hàng mẫu để test
         db.AddAccount("123", "123", "admin", "Nguyen Van A", "", "", "");
         db.AddAccount("1234", "1234", "customer", "Nguyen Thi B", "0334379439", "", "119");
-        //
+        //Tạo bảng SẢN PHẨM: Lưu trữ sản phẩm (hoa)
+        db.WriteQuery(
+                "CREATE TABLE IF NOT EXISTS SANPHAM (\n" +
+                        "\tMASP VARCHAR PRIMARY KEY NOT NULL,\n" +
+                        "\tTENSP VARCHAR NOT NULL,\n" +
+                        "\tSOLUONG INTEGER NOT NULL,\n" +
+                        "\tNOINHAP VARCHAR NOT NULL,\n" +
+                        "\tNOIDUNG VARCHAR NULL,\n" +
+                        "\tDONGIA REAL CHECK(DONGIA > 0) NOT NULL,\n" +
+                        "\tHINHANH INTEGER NOT NULL\n" +
+                        ");"
+        );
+        //Tạo bảng BILL: Lưu trữ các hóa đơn của người mua
+        db.WriteQuery(
+                "CREATE TABLE IF NOT EXISTS BILL (\n" +
+                        "    ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                        "    DATEORDER        VARCHAR           NOT NULL,\n" +
+                        "    TAIKHOANCUS            VARCHAR            NOT NULL,\n" +
+                        "    ADDRESSDELIVERRY VARCHAR NOT NULL,\n" +
+                        "    FOREIGN KEY (TAIKHOANCUS) REFERENCES ACCOUNT(TAIKHOAN)\n" +
+                        ");"
+        );
+        //Tạo bảng Bill_Detail: Chi tiết hóa đơn
+        db.WriteQuery(
+                "CREATE TABLE IF NOT EXISTS BILLDETAIL (\n" +
+                        "    ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                        "    MASP VARCHAR NOT NULL,\n" +
+                        "    IDORDER   INTEGER not NULL,\n" +
+                        "    QUANTITY  INTEGER check(QUANTITY > 0) not NULL,\n" +
+                        "    UNITPRICE Real check(UNITPRICE > 0) not NULL,\n" +
+                        "    FOREIGN KEY (MASP) REFERENCES SANPHAM(MASP),\n" +
+                        "    FOREIGN KEY (IDORDER) REFERENCES BILL(ID)\n" +
+                        ");"
+        );
+        //Tạo bảng VOUCHER: Lưu trữ các voucher hiện có
+        db.WriteQuery(
+                "CREATE TABLE IF NOT EXISTS VOUCHER(\n" +
+                        "\tMAVOUCHER VARCHAR PRIMARY KEY not null,\n" +
+                        "\tGIAM INTERGER DEFAULT(1) Check(GIAM >= 0),\n" +
+                        "\tHANSD VARCHAR \n" +
+                        ")"
+        );
 
+        //Tạo bảng VOUCHER DETAIL: Chi tiết voucher sử dụng cho một hoặc nhiều sản phẩm cụ thể
+        db.WriteQuery(
+                "CREATE TABLE IF NOT EXISTS VOUCHER_DETAIL(\n" +
+                        "\tMAVOUCHER VARCHAR,\n" +
+                        "\tMASP VARCHAR NOT NULL,\n" +
+                        "\tFOREIGN KEY (MAVOUCHER) REFERENCES VOUCHER(MAVOUCHER),\n" +
+                        "  FOREIGN KEY (MASP) REFERENCES SANPHAM(MASP)\n" +
+                        ");"
+        );
+        //Tạo bảng CARTLIST: Lưu trữ giỏ hàng của người dùng, tự động cập nhật khi người dùng đăng nhập lại
+
+        db.WriteQuery(
+                "CREATE TABLE IF NOT EXISTS CARTLIST (\n" +
+                        "\tIDCARTLIST   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                        "\tIDCUS        VARCHAR NOT NULL,\n" +
+                        "\tIDSANPHAM    VARCHAR NOT NULL,\n" +
+                        "\tSOLUONG      INTEGER CHECK(SOLUONG > 0) NOT NULL,\n" +
+                        "\tFOREIGN KEY (IDCUS) REFERENCES ACCOUNT(TAIKHOAN),\n" +
+                        "\tFOREIGN KEY (IDSANPHAM) REFERENCES SANPHAM(MASP)\n" +
+                        ")"
+        );
         //Chuyển từ Activity Register qua MainActivity
         //Nếu đăng kí thành công, tự động nhập tài khoản mật khẩu khi quay về trang login
         Bundle  bundle = getIntent().getExtras();
