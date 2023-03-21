@@ -86,7 +86,7 @@
         android:drawableStart="@drawable/baseline_phone_iphone_24"
         android:ems="10"
         android:hint="Phone Number"
-        android:inputType="textPersonName" />
+        android:inputType="number|phone" />
 
     <EditText
         android:id="@+id/registerGmail"
